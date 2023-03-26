@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  app:
+    container_name: fight-it
+    image: "fight-it"
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+    - ./server/.env
+    environment:
+      PORT: 3000
+      ENVIRONMENT: "development"
+    # command: "yarn start"
