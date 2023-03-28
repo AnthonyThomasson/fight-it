@@ -12,7 +12,5 @@ FROM node:19.6.1-bullseye
 COPY --from=server build/  app/
 COPY --from=client build/dist  app/dist/public
 
-EXPOSE $PORT
 WORKDIR /app
 ENTRYPOINT ["yarn", "start"]
-# ENTRYPOINT ["tail", "-f", "/dev/null"]

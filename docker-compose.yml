@@ -8,7 +8,7 @@ services:
       - "3000:3000"
     env_file:
     - ./server/.env
-    environment:
-      PORT: 3000
-      ENVIRONMENT: "development"
-    # command: "yarn start"
+    volumes:
+      - ./server:/app
+      - ./app/dist:/app/dist/public
+    command: yarn dev

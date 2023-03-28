@@ -6,6 +6,7 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build",
+        "build:dev": "tsc && vite build --watch --mode development",
         "preview": "vite preview",
         "lint": "yarn eslint .",
         "lint:fix": "yarn eslint --fix .",
