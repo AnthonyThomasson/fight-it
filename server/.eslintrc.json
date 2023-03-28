@@ -6,15 +6,7 @@
         "plugin:@typescript-eslint/recommended",
         "prettier"
     ],
-    "rules": {
-        "@typescript-eslint/typedef": [
-            "error",
-            {
-                "arrowParameter": true,
-                "variableDeclaration": true
-            }
-        ]
-    },
+    "rules": {},
     "parser": "@typescript-eslint/parser",
     "parserOptions": { "project": ["./tsconfig.json"] },
     "plugins": ["@typescript-eslint"]
