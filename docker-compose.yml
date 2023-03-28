@@ -6,9 +6,10 @@ services:
     build: .
     ports:
       - "3000:3000"
+      - "9229:9229"
     env_file:
     - ./server/.env
     volumes:
       - ./server:/app
-      - ./app/dist:/app/dist/public
+      - ./app/dist:/app/src/public
     command: yarn dev
