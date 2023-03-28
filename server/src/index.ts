@@ -53,6 +53,19 @@ const port = process.env.PORT ?? 3000
 app.post('/api/describe', async (req: Request, res: Response) => {
     const openai: OpenAIApi = new OpenAIApi(configuration)
 
+    const aiPrompt = `Expand the following points to be more dramatic:
+    ${generateActionString('player', req.body.player)}
+    ${generateActionString('opponent', req.body.opponent)}
+    ${generateHealthString('player', req.body.player)}
+    ${generateHealthString('opponent', req.body.opponent)}
+    ${
+        req.body.player.wellbeing === 'Dead' ||
+        req.body.opponent.wellbeing === 'Dead'
+            ? ''
+            : 'player watches their opponent considering what move to make next'
+    }`
+    console.log(aiPrompt)
+
     try {
         const messages: ChatCompletionRequestMessage[] = [
             {
@@ -62,18 +75,7 @@ app.post('/api/describe', async (req: Request, res: Response) => {
             },
             {
                 role: 'user',
-                content: `Expand the following points to be more dramatic:
-
-                    ${generateActionString('player', req.body.player)}')}
-                    ${generateActionString('opponent', req.body.opponent)}')}
-                    ${generateHealthString('player', req.body.player)}
-                    ${generateHealthString('opponent', req.body.opponent)}
-                    ${
-                        req.body.player.wellbeing === 'Dead' ||
-                        req.body.opponent.wellbeing === 'Dead'
-                            ? ''
-                            : 'player watches their opponent considering what move to make next'
-                    }`,
+                content: aiPrompt,
             },
         ]
 
