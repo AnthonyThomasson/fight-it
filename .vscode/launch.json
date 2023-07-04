@@ -12,7 +12,16 @@
       "remoteRoot": "/app/src",
       "restart": true,
       "port": 9229 // Optional; otherwise inferred from the docker-compose.debug.yml.
+    },
+    {
+      "name": "Launch Go Program",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "ai/main.go",
+      "console": "integratedTerminal"
     }
+
     // ...
   ]
 }
