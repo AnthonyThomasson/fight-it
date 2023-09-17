@@ -80,7 +80,7 @@ func (c *aiClient) generateFrom(message string, exampleFile *string) (string, er
 			resp, err = c.client.CreateChatCompletion(
 				c.ctx,
 				openai.ChatCompletionRequest{
-					Model:            openai.GPT3Dot5Turbo,
+					Model:            openai.GPT4,
 					Messages:         c.messages,
 					FrequencyPenalty: c.frequencyPenalty,
 					Temperature:      c.temperature,
