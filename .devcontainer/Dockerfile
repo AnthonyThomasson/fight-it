@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/vscode/devcontainers/base:alpine
 
-RUN apk update && apk add docker-cli nodejs npm neovim figlet
+RUN apk update && apk add docker-cli nodejs npm neovim figlet go
 
 ARG USERNAME=vscode
 
