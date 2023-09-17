@@ -1,12 +1,11 @@
 {
   "name": "Base",
-  "build": {
-    "dockerfile": "Dockerfile"
+  "service": "devcontainer",
+  "workspaceFolder": "/workspaces/ai",
+  "dockerComposeFile": "docker-compose.dev.yml",
+  "postCreateCommand": {
+    "configure-docker": "sudo chown $(whoami) /var/run/docker.sock"
   },
-  "mounts": [
-    "source=devcontainer-zshhistory,target=/commandhistory,type=volume"
-  ],
-  "features": {},
   "customizations": {
     "vscode": {
       "settings": {
@@ -18,7 +17,7 @@
           }
         }
       },
-      "extensions": ["esbenp.prettier-vscode"]
+      "extensions": ["esbenp.prettier-vscode", "ms-azuretools.vscode-docker"]
     }
   }
   // Features to add to the dev container. More info: https://containers.dev/features.
