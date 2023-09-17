@@ -7,12 +7,11 @@ services:
       - ./../:/workspaces:cached
       - /var/run/docker.sock:/var/run/docker.sock
     command: sleep infinity
-
-  # docker:
-  #   image: docker:20-dind
-  #   privileged: true
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
+  docker:
+    image: docker:20-dind
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   devcontainer-zshhistory:
