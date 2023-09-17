@@ -27,7 +27,7 @@ export const askIsolated = async (systemMessage: string, command: string) => {
     try {
         const completion: AxiosResponse<CreateChatCompletionResponse, unknown> =
             await openai.createChatCompletion({
-                model: 'gpt-3.5-turbo',
+                model: 'gpt-4',
                 messages: [
                     {
                         role: 'system',
