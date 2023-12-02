@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  app:
+    container_name: app
+    build: ./..
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    env_file:
+      - ./../server/.env
+    volumes:
+      - ./../server:/app
+      - ./../app/dist:/app/src/public
+    command: yarn dev

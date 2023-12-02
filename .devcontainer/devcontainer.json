@@ -2,10 +2,10 @@
   "name": "Base",
   "service": "devcontainer",
   "workspaceFolder": "/workspaces/ai",
-  "dockerComposeFile": "docker-compose.dev.yml",
-  "postCreateCommand": {
-    "configure-docker": "sudo chown $(whoami) /var/run/docker.sock"
-  },
+  "dockerComposeFile": [
+    "docker-compose.yml",
+    "docker-compose.devcontainer.yml"
+  ],
   "customizations": {
     "vscode": {
       "settings": {
@@ -17,7 +17,13 @@
           }
         }
       },
-      "extensions": ["esbenp.prettier-vscode", "ms-azuretools.vscode-docker"]
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker",
+        "golang.go",
+        "GitHub.copilot",
+        "GitHub.copilot-chat"
+      ]
     }
   }
   // Features to add to the dev container. More info: https://containers.dev/features.
