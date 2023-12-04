@@ -2,4 +2,4 @@
     path = .gitconfig.host
     
 [safe]
-        directory = /workspaces
+    directory = /workspaces

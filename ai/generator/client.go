@@ -4,9 +4,13 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"log"
 	"os"
+	"strings"
+	"time"
 
 	openai "github.com/sashabaranov/go-openai"
+	"gopkg.in/yaml.v3"
 )
 
 type aiClient struct {
@@ -76,18 +80,44 @@ func (c *aiClient) generateFrom(message string, exampleFile *string) (string, er
 
 		lastMessage := c.messages[len(c.messages)-1]
 		if lastMessage.Role != openai.ChatMessageRoleAssistant {
+			for {
 
-			resp, err = c.client.CreateChatCompletion(
-				c.ctx,
-				openai.ChatCompletionRequest{
-					Model:            openai.GPT4,
-					Messages:         c.messages,
-					FrequencyPenalty: c.frequencyPenalty,
-					Temperature:      c.temperature,
-				},
-			)
-			if err != nil {
-				return "", err
+				// If there are too many messages, trim down the list
+				for {
+					// convert list of messages to a single string
+					yamlData, err := yaml.Marshal(&c.messages)
+					if err != nil {
+						log.Fatalf("error: %v", err)
+					}
+					if len(yamlData) > 36000 {
+						if len(c.messages) >= 3 {
+							c.messages = append(c.messages[:1], c.messages[3:]...)
+						}
+						break
+					}
+					break
+				}
+
+				resp, err = c.client.CreateChatCompletion(
+					c.ctx,
+					openai.ChatCompletionRequest{
+						Model:            openai.GPT4,
+						Messages:         c.messages,
+						FrequencyPenalty: c.frequencyPenalty,
+						Temperature:      c.temperature,
+					},
+				)
+
+				if err != nil {
+					fmt.Println("ERROR: " + err.Error())
+					if strings.Contains(err.Error(), "status code: 429") {
+						fmt.Println("\nWARING: Rate limit exceeded. Waiting 5 seconds and trying again with a smaller message.")
+						time.Sleep(5 * time.Second)
+						continue
+					}
+					return "", err
+				}
+				break
 			}
 		}
 
@@ -109,6 +139,7 @@ func (c *aiClient) generateFrom(message string, exampleFile *string) (string, er
 						return "", err
 					}
 				}
+				response = resp.Choices[0].Message.Content
 				break
 			}
 
@@ -127,17 +158,34 @@ func (c *aiClient) generateFrom(message string, exampleFile *string) (string, er
 						Role:    openai.ChatMessageRoleUser,
 						Content: modifier,
 					})
-
 					break
 				} else if modifyType == "2\n" {
-					fmt.Println("\n\nDEBUG: Enter the modified response.")
-					editedResponse, _ := reader.ReadString('\n')
-					editedResponse = editedResponse[:len(editedResponse)-1]
-					c.messages = append(c.messages, openai.ChatCompletionMessage{
-						Role:    openai.ChatMessageRoleAssistant,
-						Content: editedResponse,
-					})
-					resp.Choices[0].Message.Content = editedResponse
+					wf, err := os.Create("edit_answer.txt")
+					if err != nil {
+						return "", err
+					}
+					wf.Write([]byte(resp.Choices[0].Message.Content))
+					defer wf.Close()
+
+					fmt.Println("\n\nDEBUG: Enter the modified response in the file \"edit_answer.txt\". When you are finished press \"y\"")
+					save, _ := reader.ReadString('\n')
+					if save == "y\n" || save == "yes\n" {
+
+						editedResponseBytes, err := os.ReadFile("edit_answer.txt")
+						if err != nil {
+							return "", err
+						}
+						editedResponse := string(editedResponseBytes)
+
+						c.messages = append(c.messages, openai.ChatCompletionMessage{
+							Role:    openai.ChatMessageRoleAssistant,
+							Content: editedResponse,
+						})
+						resp.Choices[0].Message.Content = editedResponse
+					} else {
+						fmt.Println("\n\nDEBUG: Invalid option.")
+						os.Exit(1)
+					}
 					break
 				} else {
 					fmt.Println("\n\nDEBUG: Invalid option.")

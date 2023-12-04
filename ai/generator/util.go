@@ -76,6 +76,11 @@ func saveExample(exampleFile string, question string, answer string) error {
 		return err
 	}
 
+	err = yaml.Unmarshal(questionsContent, &questions)
+	if err != nil {
+		return err
+	}
+
 	err = os.WriteFile("generator/"+exampleFile, questionsContent, 0o644)
 	if err != nil {
 		return err

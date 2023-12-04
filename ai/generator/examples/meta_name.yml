@@ -1,0 +1,30 @@
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta traveling samurai\n\n\t\t\"\"\"\n\t"
+  answer: Kazuki Takahashi
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta roman legionary\n\n\t\t\"\"\"\n\t"
+  answer: Gaius Maximus
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta traveling samurai\n\n\t\t\"\"\"\n\t"
+  answer: Kenji Yamamoto
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta traveling samurai\n\n\t\t\"\"\"\n\t"
+  answer: Hiroshi Nakamura
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta traveling samurai\n\t\t\"\"\"\n\t"
+  answer: Isamu Fujimoto
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta traveling samurai\n\t\t\"\"\"\n\t"
+  answer: Ryota Tanaka
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta traveling samurai\n\t\t\"\"\"\n\t"
+  answer: Toshiro Sato
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta roman legionary\n\t\t\"\"\"\n\t"
+  answer: Marcus Valerius
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta traveling samurai\n\t\t\"\"\"\n\t"
+  answer: Akihiko Yoshida
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta roman legionary\n\t\t\"\"\"\n\t"
+  answer: Decimus Brutus
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta traveling samurai\n\t\t\"\"\"\n\t"
+  answer: Haruki Watanabe
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta roman legionary\n\t\t\"\"\"\n\t"
+  answer: Titus Aemilius
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta traveling samurai\n\t\t\"\"\"\n\t"
+  answer: Yasuo Suzuki
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta roman legionary\n\t\t\"\"\"\n\t"
+  answer: Lucius Tiberius
+- question: "\n\t\tPick a name for a character based on the following description: \n\t\t\n\t\t\"\"\"\n\t\ta roman legionary\n\t\t\"\"\"\n\t"
+  answer: Sextus Aurelius

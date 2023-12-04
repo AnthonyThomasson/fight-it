@@ -18,7 +18,7 @@ func main() {
 
 	generator := generator.NewAIGenerator(context.Background(), os.Getenv("OPENAI_API_KEY"))
 
-	story, err := generator.StoryIntro()
+	story, err := generator.StartStory()
 	if err != nil {
 		log.Fatal(err)
 	}
