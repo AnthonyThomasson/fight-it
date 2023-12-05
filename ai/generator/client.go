@@ -3,14 +3,14 @@ package generator
 import (
 	"bufio"
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	openai "github.com/sashabaranov/go-openai"
-	"gopkg.in/yaml.v3"
 )
 
 type aiClient struct {
@@ -59,6 +59,22 @@ func (c *aiClient) setTemperature(value float32) *aiClient {
 	return c
 }
 
+func (c *aiClient) addMessage(message string) *aiClient {
+	c.messages = append(c.messages, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleUser,
+		Content: message,
+	})
+	return c
+}
+
+func (c *aiClient) addResponseMessage(message string) *aiClient {
+	c.messages = append(c.messages, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleAssistant,
+		Content: message,
+	})
+	return c
+}
+
 func (c *aiClient) generateFrom(message string, exampleFile *string) (string, error) {
 	exampleMessages, err := parseExamples(*exampleFile)
 	if err != nil {
@@ -85,11 +101,11 @@ func (c *aiClient) generateFrom(message string, exampleFile *string) (string, er
 				// If there are too many messages, trim down the list
 				for {
 					// convert list of messages to a single string
-					yamlData, err := yaml.Marshal(&c.messages)
+					jsonData, err := json.Marshal(&c.messages)
 					if err != nil {
 						log.Fatalf("error: %v", err)
 					}
-					if len(yamlData) > 36000 {
+					if len(jsonData) > 36000 {
 						if len(c.messages) >= 3 {
 							c.messages = append(c.messages[:1], c.messages[3:]...)
 						}
@@ -101,7 +117,7 @@ func (c *aiClient) generateFrom(message string, exampleFile *string) (string, er
 				resp, err = c.client.CreateChatCompletion(
 					c.ctx,
 					openai.ChatCompletionRequest{
-						Model:            openai.GPT4,
+						Model:            openai.GPT3Dot5Turbo,
 						Messages:         c.messages,
 						FrequencyPenalty: c.frequencyPenalty,
 						Temperature:      c.temperature,
@@ -109,11 +125,17 @@ func (c *aiClient) generateFrom(message string, exampleFile *string) (string, er
 				)
 
 				if err != nil {
-					fmt.Println("ERROR: " + err.Error())
-					if strings.Contains(err.Error(), "status code: 429") {
-						fmt.Println("\nWARING: Rate limit exceeded. Waiting 5 seconds and trying again with a smaller message.")
-						time.Sleep(5 * time.Second)
-						continue
+
+					e := &openai.APIError{}
+					if errors.As(err, &e) {
+						switch e.HTTPStatusCode {
+						case 429:
+							fmt.Println("\nWARING: Rate limit exceeded. Waiting 5 seconds and trying again with a smaller message.")
+							time.Sleep(5 * time.Second)
+							continue
+						default:
+							fmt.Println("ERROR: " + err.Error())
+						}
 					}
 					return "", err
 				}
@@ -160,10 +182,35 @@ func (c *aiClient) generateFrom(message string, exampleFile *string) (string, er
 					})
 					break
 				} else if modifyType == "2\n" {
+					wfp, err := os.Create("view_prompt.txt")
+					if err != nil {
+						return "", err
+					}
 					wf, err := os.Create("edit_answer.txt")
 					if err != nil {
 						return "", err
 					}
+
+					allMessageStr := ""
+					for _, message := range c.messages {
+
+						if message.Role == openai.ChatMessageRoleUser {
+							allMessageStr += "\n\nUser: " + message.Content + "\n"
+							continue
+						}
+						if message.Role == openai.ChatMessageRoleAssistant {
+							allMessageStr += "\n\nAI: " + message.Content + "\n"
+							continue
+						}
+						if message.Role == openai.ChatMessageRoleSystem {
+							allMessageStr += "\n\nSystem: " + message.Content + "\n"
+							continue
+						}
+					}
+
+					allMessageStr += "\n\nUser: " + message + "\n"
+
+					wfp.Write([]byte(allMessageStr))
 					wf.Write([]byte(resp.Choices[0].Message.Content))
 					defer wf.Close()
 

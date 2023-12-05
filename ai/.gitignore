@@ -1,2 +1,4 @@
 .env
 edit_answer.txt
+view_prompt.txt
+/generator/cache/

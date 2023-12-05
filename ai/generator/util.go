@@ -2,31 +2,31 @@ package generator
 
 import (
 	"embed"
+	"encoding/json"
 	"math/rand"
 	"os"
 	"time"
 
 	openai "github.com/sashabaranov/go-openai"
-	"gopkg.in/yaml.v3"
 )
 
 //go:embed examples/*
 var examples embed.FS
 
 type Question struct {
-	Question any `yaml:"question"`
-	Answer   any `yaml:"answer"`
+	Question string `json:"question"`
+	Answer   string `json:"answer"`
 }
 
 func parseExamples(exampleFile string) ([]openai.ChatCompletionMessage, error) {
-	examplesYml, err := examples.ReadFile(exampleFile)
+	examplesJson, err := examples.ReadFile(exampleFile)
 	if err != nil {
 		return nil, err
 	}
 
 	var messages []openai.ChatCompletionMessage
 	var questions []Question
-	err = yaml.Unmarshal(examplesYml, &questions)
+	err = json.Unmarshal(examplesJson, &questions)
 	if err != nil {
 		return nil, err
 	}
@@ -42,12 +42,12 @@ func parseExamples(exampleFile string) ([]openai.ChatCompletionMessage, error) {
 	for _, q := range questions {
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleUser,
-			Content: q.Question.(string),
+			Content: q.Question,
 		})
 
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleAssistant,
-			Content: q.Answer.(string),
+			Content: q.Answer,
 		})
 
 	}
@@ -55,13 +55,13 @@ func parseExamples(exampleFile string) ([]openai.ChatCompletionMessage, error) {
 }
 
 func saveExample(exampleFile string, question string, answer string) error {
-	examplesYml, err := os.ReadFile("generator/" + exampleFile)
+	examplesJson, err := os.ReadFile("generator/" + exampleFile)
 	if err != nil {
 		return err
 	}
 
 	var questions []Question
-	err = yaml.Unmarshal(examplesYml, &questions)
+	err = json.Unmarshal(examplesJson, &questions)
 	if err != nil {
 		return err
 	}
@@ -71,12 +71,7 @@ func saveExample(exampleFile string, question string, answer string) error {
 		Answer:   answer,
 	})
 
-	questionsContent, err := yaml.Marshal(&questions)
-	if err != nil {
-		return err
-	}
-
-	err = yaml.Unmarshal(questionsContent, &questions)
+	questionsContent, err := json.Marshal(&questions)
 	if err != nil {
 		return err
 	}

@@ -5,51 +5,66 @@ import (
 	"os"
 )
 
-func (g *aiGenerator) getIntro(player *character, opponent *character) (string, error) {
-	examplesYml := "examples/story_intro.yml"
+func (g *aiGenerator) getIntro(s *Story) (string, error) {
+	examplesYml := "examples/story_intro.json"
 
 	client := newAiClient(g.ctx, g.key)
-	client.setSystemMessage("Write an introduction to a story leading up to a fight between two characters. Write it from the prospective of the \"player\" character.")
 	client.setDebugMode(os.Getenv("DEBUG_AI") == "true")
 	client.setFrequencyPenalty(0.7)
 	client.setTemperature(1.0)
-	message := `
-		Write an introduction to a story from the prospective of the "player" character. The story should lead up to the moment before the fight starts: 
-		
-		player
-		"""
-		NAME: ` + player.Name + `
-		WEAPON: ` + player.Weapon + `
 
-		` + player.Backstory + `
+	client.setSystemMessage(`Write an introduction to a story leading up to a fight between two characters.`)
+	client.setSystemMessage(`Your response should be under 200 words`)
+	client.setSystemMessage(`
+		Write the story in first person perspective of the following character:
 		"""
+		NAME: ` + s.Fight.Player.Name + `
+		WEAPON: ` + s.Fight.Player.Weapon + `
 
-		opponent
-		"""
-		NAME: ` + opponent.Name + `
-		WEAPON: ` + opponent.Weapon + `
+		` + s.Fight.Player.Seed + `
 
-		` + opponent.Backstory + `
+		` + s.Fight.Player.PhysicalDiscription + `
+
+		` + s.Fight.Player.Backstory + `
 		"""
-	`
+		`)
+	client.setSystemMessage(`
+
+		End the introduction with the character staring down the following character. They should both be staring earchother down when the introduction ends:
+		"""
+		NAME: ` + s.Fight.Opponent.Name + `
+		WEAPON: ` + s.Fight.Opponent.Weapon + `
+
+		` + s.Fight.Opponent.Seed + `
+
+		` + s.Fight.Opponent.PhysicalDiscription + `
+
+		` + s.Fight.Opponent.Backstory + `
+		"""
+	`)
+	message := `Write the introduction ending right before a fight takes place`
 	result, err := client.generateFrom(message, &examplesYml)
 	if err != nil {
 		return "", err
 	}
+	s.Progression.Intro = result
 	return result, nil
 }
 
-func (g *aiGenerator) getCharacterWeapon(character character) (string, error) {
-	examplesYml := "examples/meta_weapon.yml"
+func (g *aiGenerator) getCharacterWeapon(character Character) (string, error) {
+	examplesYml := "examples/character_weapon.json"
 
 	client := newAiClient(g.ctx, g.key)
-	client.setSystemMessage("Decide a weapon for a character based on a description of them.")
+	client.setSystemMessage(`
+		Pick a weapon for a character a character whos details are delimited by triple quotes. The name of the character is prefixed with "NAME: ".
+
+		You should only pick one weapon.
+		The weapon should be usable to fight another character.
+	`)
 	client.setDebugMode(os.Getenv("DEBUG_AI") == "true")
 	client.setFrequencyPenalty(0.7)
 	client.setTemperature(1.0)
 	message := `
-		Decide which weapon the character uses based on the following description of them:
-		
 		"""
 		NAME: ` + character.Name + `
 
@@ -64,20 +79,23 @@ func (g *aiGenerator) getCharacterWeapon(character character) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	character.Weapon = result
 	return result, nil
 }
 
-func (g *aiGenerator) getCharacterPhysicalDescription(character character) (string, error) {
-	examplesYml := "examples/meta_physical_description.yml"
+func (g *aiGenerator) getCharacterPhysicalDescription(character Character) (string, error) {
+	examplesYml := "examples/character_physical_description.json"
 
 	client := newAiClient(g.ctx, g.key)
-	client.setSystemMessage("Expand a description of a character into a physical description.")
+	client.setSystemMessage(`
+		Create a pysical description of a character whos details are delimited by triple quotes. The name of the character is prefixed with "NAME: ".
+
+		Your response should be no longer than 100 words.
+	`)
 	client.setDebugMode(os.Getenv("DEBUG_AI") == "true")
 	client.setFrequencyPenalty(0.7)
 	client.setTemperature(1.0)
 	message := `
-		Expand the following into a physical description of a character:
-		
 		"""
 		NAME: ` + character.Name + `
 
@@ -88,20 +106,23 @@ func (g *aiGenerator) getCharacterPhysicalDescription(character character) (stri
 	if err != nil {
 		return "", err
 	}
+	character.PhysicalDiscription = result
 	return result, nil
 }
 
-func (g *aiGenerator) getCharacterBackstory(character character) (string, error) {
-	examplesYml := "examples/meta_backstory.yml"
+func (g *aiGenerator) getCharacterBackstory(character Character) (string, error) {
+	examplesYml := "examples/character_backstory.json"
 
 	client := newAiClient(g.ctx, g.key)
-	client.setSystemMessage("Expand a description of a character into a backstory.")
+	client.setSystemMessage(`
+		Create a backstory for a character whos details are delimited by triple quotes. The name of the character is prefixed with "NAME: ".
+
+		Your response should be no longer than 200 words.
+	`)
 	client.setDebugMode(os.Getenv("DEBUG_AI") == "true")
 	client.setFrequencyPenalty(0.7)
 	client.setTemperature(1.0)
 	message := `
-		Expand the following into a backstory for a character: 
-
 		"""
 		NAME: ` + character.Name + `
 		
@@ -114,20 +135,19 @@ func (g *aiGenerator) getCharacterBackstory(character character) (string, error)
 	if err != nil {
 		return "", err
 	}
+	character.Backstory = result
 	return result, nil
 }
 
-func (g *aiGenerator) getCharacterName(character character) (string, error) {
-	examplesYml := "examples/meta_name.yml"
+func (g *aiGenerator) getCharacterName(character Character) (string, error) {
+	examplesYml := "examples/character_name.json"
 
 	client := newAiClient(g.ctx, g.key)
-	client.setSystemMessage("You are picking a name for a character based on a description of them.")
+	client.setSystemMessage("Pick a name for a character whos details are delimited by triple quotes.")
 	client.setDebugMode(os.Getenv("DEBUG_AI") == "true")
 	client.setFrequencyPenalty(0.7)
 	client.setTemperature(1.0)
 	message := `
-		Pick a name for a character based on the following description: 
-		
 		"""
 		` + character.Seed + `
 		"""
@@ -136,5 +156,6 @@ func (g *aiGenerator) getCharacterName(character character) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	character.Name = result
 	return result, nil
 }

@@ -20,7 +20,7 @@ func main() {
 
 	story, err := generator.StartStory()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err.Error())
 	}
 	fmt.Print(story)
 }
